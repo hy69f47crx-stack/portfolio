@@ -130,12 +130,13 @@ export function NavBar({ screen, onNavigate, tweaks, setTweak, onSetupApi, hasAp
             padding: '14px 16px 20px', maxHeight: 'calc(100vh - 60px)', overflowY: 'auto',
             boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
           }}>
-            {/* Nav links */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+            {/* Nav links — flex (not grid) so the global responsive rule doesn't collapse it */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
               {NAV_LINKS.map(({ id, key }) => {
                 const active = screen === id;
                 return (
                   <button key={id} onClick={() => { onNavigate(id); setMenuOpen(false); }} style={{
+                    flex: '1 1 calc(50% - 4px)',
                     padding: '12px 14px', borderRadius: 10, textAlign: 'start',
                     border: `1px solid ${active ? T.ink : T.line}`,
                     background: active ? T.ink : T.card,
@@ -164,18 +165,6 @@ export function NavBar({ screen, onNavigate, tweaks, setTweak, onSetupApi, hasAp
                 }}>{c.label}</button>
               ))}
             </div>
-
-            <button onClick={onSetupApi} style={{
-              display: 'flex', alignItems: 'center', gap: 6, width: '100%', justifyContent: 'center',
-              padding: '10px', borderRadius: 8,
-              border: `1px solid ${hasApiKey ? T.sage + '60' : T.amber + '80'}`,
-              background: hasApiKey ? (T.sageBg || '#eaf2ec') : (T.amberBg || '#fdf5e8'),
-              color: hasApiKey ? T.sage : T.amber,
-              fontSize: 13, fontWeight: 500, fontFamily: T.sans,
-            }}>
-              <span style={{ width: 7, height: 7, borderRadius: 4, background: hasApiKey ? T.sage : T.amber, display: 'inline-block' }} />
-              {hasApiKey ? t('nav.live') : t('nav.noLive')}
-            </button>
           </div>
         )}
       </nav>
@@ -286,20 +275,6 @@ export function NavBar({ screen, onNavigate, tweaks, setTweak, onSetupApi, hasAp
               borderRadius: 4, background: T.sage, border: `2px solid ${T.card}`,
             }} />
           )}
-        </button>
-
-        {/* Live price status / API key button */}
-        <button onClick={onSetupApi} title={hasApiKey ? 'Live prices connected — click to change key' : 'Connect live prices'} style={{
-          display: 'flex', alignItems: 'center', gap: 5,
-          padding: '5px 11px', borderRadius: 8,
-          border: `1px solid ${hasApiKey ? T.sage + '60' : T.amber + '80'}`,
-          background: hasApiKey ? (T.sageBg || '#eaf2ec') : (T.amberBg || '#fdf5e8'),
-          color: hasApiKey ? T.sage : T.amber,
-          fontSize: 12, fontWeight: 500, fontFamily: T.sans, cursor: 'pointer',
-          whiteSpace: 'nowrap',
-        }}>
-          <span style={{ width: 7, height: 7, borderRadius: 4, background: hasApiKey ? T.sage : T.amber, display: 'inline-block', flexShrink: 0 }} />
-          {hasApiKey ? t('nav.live') : t('nav.noLive')}
         </button>
 
         {/* Add holding CTA */}

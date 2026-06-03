@@ -147,7 +147,9 @@ function ApiKeyModal({ T, onDone }) {
 function AppInner() {
   const { T, setMode, setLang } = useTheme();
 
-  const [showApiSetup, setShowApiSetup] = useState(!hasFinnhubKey());
+  // Test-use build: don't auto-prompt for a live-price API key.
+  // The app runs on demo data; users are never nagged to connect Finnhub.
+  const [showApiSetup, setShowApiSetup] = useState(false);
   const [dataNotice,   setDataNotice]   = useState(() => !localStorage.getItem('stratos-notice-v1'));
   const [screen,       setScreen]       = useState('dashboard');
   const [activeSym,    setActiveSym]    = useState(null);
