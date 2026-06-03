@@ -77,7 +77,7 @@ export const NVDA = {
   sentiment: { bull: 67, neutral: 21, bear: 12, mentions24h: 14203, delta: 38 },
   news: [
     { src: "Market Wire",   time: "12m", head: "NVIDIA expands Blackwell shipments amid record data-center demand" },
-    { src: "Stratos Feed", time: "1h",  head: "Analysts raise FY26 targets after sovereign AI deals in EMEA" },
+    { src: "Portfolio Feed", time: "1h",  head: "Analysts raise FY26 targets after sovereign AI deals in EMEA" },
     { src: "Tech Brief",   time: "3h",  head: "Project Digits ships to early developers, undercuts cloud GPU pricing" },
     { src: "Equity Wire",  time: "5h",  head: "Supply constraints ease as TSMC ramps CoWoS capacity 2.4x YoY" },
     { src: "Global Brief", time: "8h",  head: "Hyperscaler capex guidance signals 'multi-year build-out'" },

@@ -241,7 +241,7 @@ function AppInner() {
         }}>
           <div style={{ fontFamily: T.serif, fontSize: 18, marginBottom: 8 }}>Your data stays on your device</div>
           <div style={{ fontSize: 13, color: T.ink2, lineHeight: 1.6, marginBottom: 16 }}>
-            Stratos stores everything locally in your browser. Nothing is sent to any server. Clearing browser data will erase your portfolio.
+            Portfolio stores everything locally in your browser. Nothing is sent to any server. Clearing browser data will erase your portfolio.
           </div>
           <button
             onClick={() => { localStorage.setItem('stratos-notice-v1', '1'); setDataNotice(false); }}

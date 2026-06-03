@@ -33,7 +33,7 @@ export function InsightsScreen({ tweaks, onNavigate }) {
           <div style={{ fontSize: 11, color: T.ink3, letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 4 }}>{t('insights.eyebrow')}</div>
           <div style={{ fontFamily: T.serif, fontSize: 34, fontWeight: 400 }}>{t('insights.title')}</div>
           <div style={{ fontSize: 13, color: T.ink2, marginTop: 6 }}>
-            Down {fmtCurrency(530, { sym: cur })} (−0.41%) today. Stratos identified {INSIGHTS.length} things worth knowing.
+            Down {fmtCurrency(530, { sym: cur })} (−0.41%) today. Portfolio identified {INSIGHTS.length} things worth knowing.
           </div>
         </div>
 

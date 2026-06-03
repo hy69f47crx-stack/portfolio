@@ -32,7 +32,7 @@ export function MoreScreen({ onNavigate }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 40 }}>
           <BrandGlyph size={44} color={T.ink} />
           <div>
-            <div style={{ fontFamily: T.serif, fontSize: 36, fontWeight: 400, lineHeight: 1.05 }}>Stratos</div>
+            <div style={{ fontFamily: T.serif, fontSize: 36, fontWeight: 400, lineHeight: 1.05 }}>Portfolio</div>
             <div style={{ fontSize: 13, color: T.ink3, marginTop: 4 }}>{t('more.tagline')}</div>
           </div>
         </div>

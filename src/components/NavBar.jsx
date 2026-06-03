@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../theme/ThemeContext';
+import { useIsMobile } from '../hooks/useIsMobile';
 import { BrandGlyph } from './BrandGlyph';
 import { NOTIFICATIONS } from '../data/extended';
 
@@ -25,7 +26,9 @@ const NAV_LINKS = [
 
 export function NavBar({ screen, onNavigate, tweaks, setTweak, onSetupApi, hasApiKey }) {
   const { T, mode, setMode, lang, setLang, t } = useTheme();
+  const isMobile = useIsMobile();
   const [curOpen, setCurOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const curRef = useRef(null);
   const unread = NOTIFICATIONS.filter(n => n.unread).length;
   const cur = tweaks?.currency || '$';
@@ -38,12 +41,148 @@ export function NavBar({ screen, onNavigate, tweaks, setTweak, onSetupApi, hasAp
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Close the mobile menu whenever the screen changes
+  useEffect(() => { setMenuOpen(false); }, [screen]);
+
   const toggleTheme = () => {
     const next = mode === 'light' ? 'dark' : 'light';
     setMode(next);
     setTweak?.('theme', next);
   };
 
+  const langToggle = (
+    <div style={{
+      display: 'flex', alignItems: 'center',
+      border: `1px solid ${T.line}`, borderRadius: 8,
+      background: T.card, overflow: 'hidden', height: 32,
+    }}>
+      {[{ code: 'en', label: 'EN' }, { code: 'ar', label: 'عر' }].map(({ code, label }) => (
+        <button
+          key={code}
+          onClick={() => { setTweak?.('lang', code); setLang(code); }}
+          title={code === 'en' ? 'Switch to English' : 'التبديل إلى العربية'}
+          style={{
+            padding: '0 11px', height: '100%', border: 'none',
+            background: lang === code ? T.ink : 'transparent',
+            color: lang === code ? T.card : T.ink2,
+            fontSize: 12, fontWeight: lang === code ? 600 : 400,
+            fontFamily: code === 'ar' ? 'system-ui, sans-serif' : T.sans,
+            cursor: 'pointer', transition: 'all 120ms',
+            letterSpacing: code === 'en' ? 0.3 : 0,
+          }}
+        >{label}</button>
+      ))}
+    </div>
+  );
+
+  // ── Mobile layout: logo · theme · notifications · hamburger ────────────────
+  if (isMobile) {
+    return (
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
+        background: `${T.bg}ee`,
+        backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
+        borderBottom: `1px solid ${T.line}`,
+        height: 60, display: 'flex', alignItems: 'center',
+        padding: '0 16px',
+      }}>
+        {/* Logo */}
+        <div onClick={() => onNavigate('dashboard')} style={{
+          display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', flex: 1,
+        }}>
+          <BrandGlyph size={22} color={T.ink} />
+          <span style={{ fontFamily: T.serif, fontSize: 19, fontWeight: 400, color: T.ink, letterSpacing: -0.3 }}>Portfolio</span>
+        </div>
+
+        {/* Compact controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button onClick={toggleTheme} style={{
+            width: 34, height: 34, borderRadius: 8, border: `1px solid ${T.line}`,
+            background: T.card, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15,
+          }}>{mode === 'light' ? '🌙' : '☀️'}</button>
+
+          <button onClick={() => onNavigate('notifications')} style={{
+            width: 34, height: 34, borderRadius: 8, border: `1px solid ${T.line}`,
+            background: T.card, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            position: 'relative', fontSize: 15,
+          }}>
+            🔔
+            {unread > 0 && <span style={{ position: 'absolute', top: 4, right: 4, width: 8, height: 8, borderRadius: 4, background: T.sage, border: `2px solid ${T.card}` }} />}
+          </button>
+
+          {/* Hamburger */}
+          <button onClick={() => setMenuOpen(o => !o)} aria-label="Menu" style={{
+            width: 34, height: 34, borderRadius: 8, border: `1px solid ${T.line}`,
+            background: menuOpen ? T.ink : T.card,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4,
+          }}>
+            {[0, 1, 2].map(i => (
+              <span key={i} style={{ width: 16, height: 1.6, borderRadius: 2, background: menuOpen ? T.card : T.ink }} />
+            ))}
+          </button>
+        </div>
+
+        {/* Slide-down menu */}
+        {menuOpen && (
+          <div style={{
+            position: 'fixed', top: 60, left: 0, right: 0, zIndex: 999,
+            background: T.bg, borderBottom: `1px solid ${T.line}`,
+            padding: '14px 16px 20px', maxHeight: 'calc(100vh - 60px)', overflowY: 'auto',
+            boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
+          }}>
+            {/* Nav links */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+              {NAV_LINKS.map(({ id, key }) => {
+                const active = screen === id;
+                return (
+                  <button key={id} onClick={() => { onNavigate(id); setMenuOpen(false); }} style={{
+                    padding: '12px 14px', borderRadius: 10, textAlign: 'start',
+                    border: `1px solid ${active ? T.ink : T.line}`,
+                    background: active ? T.ink : T.card,
+                    color: active ? T.card : T.ink,
+                    fontSize: 14, fontWeight: active ? 600 : 500, fontFamily: T.sans,
+                  }}>{t(key)}</button>
+                );
+              })}
+            </div>
+
+            {/* Add holding CTA */}
+            <button onClick={() => { onNavigate('add-holding'); setMenuOpen(false); }} style={{
+              width: '100%', padding: '12px', borderRadius: 10, border: 'none',
+              background: T.ink, color: T.card, fontSize: 14, fontWeight: 600, fontFamily: T.sans, marginBottom: 16,
+            }}>{t('nav.addHolding')}</button>
+
+            {/* Language + currency + live status row */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
+              {langToggle}
+              {CURRENCIES.map(c => (
+                <button key={c.sym} onClick={() => setTweak?.('currency', c.sym)} style={{
+                  padding: '6px 10px', borderRadius: 8, fontSize: 12, fontFamily: T.sans,
+                  border: `1px solid ${cur === c.sym ? T.ink : T.line}`,
+                  background: cur === c.sym ? T.ink : T.card,
+                  color: cur === c.sym ? T.card : T.ink2, fontWeight: cur === c.sym ? 600 : 400,
+                }}>{c.label}</button>
+              ))}
+            </div>
+
+            <button onClick={onSetupApi} style={{
+              display: 'flex', alignItems: 'center', gap: 6, width: '100%', justifyContent: 'center',
+              padding: '10px', borderRadius: 8,
+              border: `1px solid ${hasApiKey ? T.sage + '60' : T.amber + '80'}`,
+              background: hasApiKey ? (T.sageBg || '#eaf2ec') : (T.amberBg || '#fdf5e8'),
+              color: hasApiKey ? T.sage : T.amber,
+              fontSize: 13, fontWeight: 500, fontFamily: T.sans,
+            }}>
+              <span style={{ width: 7, height: 7, borderRadius: 4, background: hasApiKey ? T.sage : T.amber, display: 'inline-block' }} />
+              {hasApiKey ? t('nav.live') : t('nav.noLive')}
+            </button>
+          </div>
+        )}
+      </nav>
+    );
+  }
+
+  // ── Desktop layout ─────────────────────────────────────────────────────────
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
@@ -61,7 +200,7 @@ export function NavBar({ screen, onNavigate, tweaks, setTweak, onSetupApi, hasAp
         marginRight: 32, flexShrink: 0,
       }}>
         <BrandGlyph size={24} color={T.ink} />
-        <span style={{ fontFamily: T.serif, fontSize: 20, fontWeight: 400, color: T.ink, letterSpacing: -0.3 }}>Stratos</span>
+        <span style={{ fontFamily: T.serif, fontSize: 20, fontWeight: 400, color: T.ink, letterSpacing: -0.3 }}>Portfolio</span>
       </div>
 
       {/* Nav links */}
@@ -87,28 +226,7 @@ export function NavBar({ screen, onNavigate, tweaks, setTweak, onSetupApi, hasAp
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
 
         {/* Language toggle */}
-        <div style={{
-          display: 'flex', alignItems: 'center',
-          border: `1px solid ${T.line}`, borderRadius: 8,
-          background: T.card, overflow: 'hidden', height: 32,
-        }}>
-          {[{ code: 'en', label: 'EN' }, { code: 'ar', label: 'عر' }].map(({ code, label }) => (
-            <button
-              key={code}
-              onClick={() => { setTweak?.('lang', code); setLang(code); }}
-              title={code === 'en' ? 'Switch to English' : 'التبديل إلى العربية'}
-              style={{
-                padding: '0 11px', height: '100%', border: 'none',
-                background: lang === code ? T.ink : 'transparent',
-                color: lang === code ? T.card : T.ink2,
-                fontSize: 12, fontWeight: lang === code ? 600 : 400,
-                fontFamily: code === 'ar' ? 'system-ui, sans-serif' : T.sans,
-                cursor: 'pointer', transition: 'all 120ms',
-                letterSpacing: code === 'en' ? 0.3 : 0,
-              }}
-            >{label}</button>
-          ))}
-        </div>
+        {langToggle}
 
         {/* Currency picker */}
         <div ref={curRef} style={{ position: 'relative' }}>
